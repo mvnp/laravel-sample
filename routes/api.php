@@ -17,3 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Method 1: Full resource routes (recommended)
+Route::apiResource('estabelecimentos', EstabelecimentoController::class);
