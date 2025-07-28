@@ -10,13 +10,69 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EstabelecimentoController extends Controller
 {
+    public function index(Request $request): JsonResponse {
+
+        $estabelecimentos = Estabelecimento::query()
+            ->where('nome_fantasia', '<>', '')
+            ->with(['empresa', 'socio'])
+            ->whereHas('empresa')
+            ->whereHas('socio')
+            ->limit(100);
+
+        if($request->has('cnpj')) {
+            $cnpj = $request->cnpj;
+            $estabelecimentos->where('cnpj_basico', $cnpj);
+        }
+        
+        if($request->has('situacao')) {
+            $situacao = $request->situacao;
+            $estabelecimentos->where('situacao_cadastral', $situacao);
+        }
+        
+        if($request->has('cnae_principal')) {
+            $cnaep = $request->cnae_principal;
+            $estabelecimentos->where("cnae_principal", "LIKE", "%$cnaep%");
+        }
+        
+        if($request->has('cnae_secundaria')) {
+            $cnaes = $request->cnae_secundaria;
+            $estabelecimentos->where("cnae_secundaria", "LIKE", "%$cnaes%");
+        }
+        
+        if($request->has('fantasia')) {
+            $fantasia = $request->fantasia;
+            $estabelecimentos->where("nome_fantasia", "LIKE", "%$fantasia%");
+        }
+        
+        if($request->has('uf') && $request->has('municipio')) {
+            $uf = $request->uf;
+            $municipio = $request->municipio;
+            $estabelecimentos->where("uf", $uf);
+            $estabelecimentos->where("municipio", $municipio);
+        }
+        
+        if($request->has('cep')) {
+            $cep = (string) $request->cep;
+            $estabelecimentos->where("cep", "LIKE", "$cep%");
+        }
+            
+        $estabelecimentos = $estabelecimentos->get();
+
+        return response()->json([
+            'status' => 'success',
+            'count' => $estabelecimentos->count(),
+            'data' => $estabelecimentos,
+            'message' => 'Estabelecimentos retrieved successfully'
+        ]);
+    }
+
     /**
      * Display a listing of estabelecimentos.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request): JsonResponse
+    public function indexModelo(Request $request): JsonResponse
     {
         $query = Estabelecimento::query();
 
@@ -42,8 +98,11 @@ class EstabelecimentoController extends Controller
         }
 
         // Pagination
-        $perPage = $request->get('per_page', 100);
-        $estabelecimentos = $query->paginate($perPage);
+        // $perPage = $request->get('per_page', 100);
+        // $estabelecimentos = $query->paginate($perPage);
+
+        // 
+        $estabelecimentos = $query->limit(10)->get();
 
         return response()->json([
             'status' => 'success',
