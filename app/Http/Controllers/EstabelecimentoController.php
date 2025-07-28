@@ -17,7 +17,7 @@ class EstabelecimentoController extends Controller
             ->with(['empresa', 'socio'])
             ->whereHas('empresa')
             ->whereHas('socio')
-            ->limit(500);
+            ->limit(1000);
 
         $filteredData = array_filter($request->all());
 
@@ -41,13 +41,13 @@ class EstabelecimentoController extends Controller
         }
         
         if($request->has('cnae_principal') && !is_null($request->get('cnae_principal'))) {
-            $cnaep = $request->cnae_principal;
-            $estabelecimentos->where("cnae_principal", "LIKE", "%$cnaep%");
+            $cnaep = (string) $request->cnae_principal;
+            $estabelecimentos->where("cnae_principal", $cnaep);
         }
         
         if($request->has('cnae_secundaria') && !is_null($request->get('cnae_secundaria'))) {
-            $cnaes = $request->cnae_secundaria;
-            $estabelecimentos->where("cnae_secundaria", "LIKE", "%$cnaes%");
+            $cnaes = (string) $request->cnae_secundaria;
+            $estabelecimentos->where("cnae_secundaria", $cnaes);
         }
         
         if($request->has('fantasia') && !is_null($request->get('fantasia'))) {
@@ -56,9 +56,14 @@ class EstabelecimentoController extends Controller
         }
         
         if($request->has('uf') && !is_null($request->get('uf'))) {
+            $uf = (string) $request->uf;
+            $estabelecimentos->where("uf", $uf);
+        }
+        
+        if($request->has('uf') && !is_null($request->get('uf'))) {
             if($request->has('municipio') && !is_null($request->get('municipio'))) {
-                $uf = $request->uf;
-                $municipio = $request->municipio;
+                $uf = (string) $request->uf;
+                $municipio = (string) $request->municipio;
                 $estabelecimentos->where("uf", $uf);
                 $estabelecimentos->where("municipio", $municipio);
             }
