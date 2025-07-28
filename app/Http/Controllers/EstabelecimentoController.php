@@ -56,14 +56,14 @@ class EstabelecimentoController extends Controller
         }
         
         if($request->has('uf') && !is_null($request->get('uf'))) {
-            $uf = (string) $request->uf;
+            $uf = (string) strtoupper($request->uf);
             $estabelecimentos->where("uf", $uf);
         }
         
         if($request->has('uf') && !is_null($request->get('uf'))) {
             if($request->has('municipio') && !is_null($request->get('municipio'))) {
-                $uf = (string) $request->uf;
-                $municipio = (string) $request->municipio;
+                $municipio = (string) strtoupper($request->municipio);
+                $uf = (string) strtoupper($request->uf);
                 $estabelecimentos->where("uf", $uf);
                 $estabelecimentos->where("municipio", $municipio);
             }
