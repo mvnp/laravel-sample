@@ -52,7 +52,7 @@ class EstabelecimentoController extends Controller
         
         if($request->has('fantasia') && !is_null($request->get('fantasia'))) {
             $fantasia = $request->fantasia;
-            $estabelecimentos->where("nome_fantasia", "LIKE", "%$fantasia%");
+            $estabelecimentos->where("nome_fantasia", "LIKE", "%{$fantasia}%");
         }
         
         if($request->has('uf') && !is_null($request->get('uf'))) {
@@ -71,7 +71,7 @@ class EstabelecimentoController extends Controller
         
         if($request->has('cep') && !is_null($request->get('cep'))) {
             $cep = (string) $request->cep;
-            $estabelecimentos->where("cep", "LIKE", "$cep%");
+            $estabelecimentos->where("cep", "LIKE", "%{$cep}%");
         }
             
         $estabelecimentos = $estabelecimentos->get();
