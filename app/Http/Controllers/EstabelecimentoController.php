@@ -17,7 +17,7 @@ class EstabelecimentoController extends Controller
             ->with(['empresa', 'socio'])
             ->whereHas('empresa')
             ->whereHas('socio')
-            ->limit(1000);
+            ->limit(51);
 
         $filteredData = array_filter($request->all());
 
@@ -72,6 +72,19 @@ class EstabelecimentoController extends Controller
         if($request->has('cep') && !is_null($request->get('cep'))) {
             $cep = (string) $request->cep;
             $estabelecimentos->where("cep", "LIKE", "%{$cep}%");
+        }
+        
+        if($request->has('capital_entre') && !is_null($request->get('capital_entre'))) {
+            $capital_inicial = (float) ((explode(",", $request->capital_entre))[0]);
+            $capital_final = (float) ((explode(",", $request->capital_entre))[1]);
+            if(!is_null($capital_inicial) && !is_null($capital_final)) {
+                $estabelecimentos->whereHas("empresa", function($query) use ($capital_inicial, $capital_final){
+                    $query->whereBetween("capital_social", [
+                        $capital_inicial,
+                        $capital_final   
+                    ]);
+                });
+            }
         }
             
         $estabelecimentos = $estabelecimentos->get();
