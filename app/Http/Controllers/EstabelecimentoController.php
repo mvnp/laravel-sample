@@ -10,48 +10,61 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class EstabelecimentoController extends Controller
 {
-    public function index(Request $request): JsonResponse {
-
+    public function index(Request $request): JsonResponse
+    {
         $estabelecimentos = Estabelecimento::query()
             ->where('nome_fantasia', '<>', '')
             ->with(['empresa', 'socio'])
             ->whereHas('empresa')
             ->whereHas('socio')
-            ->limit(100);
+            ->limit(500);
 
-        if($request->has('cnpj')) {
-            $cnpj = $request->cnpj;
-            $estabelecimentos->where('cnpj_basico', $cnpj);
+        $filteredData = array_filter($request->all());
+
+        if(count($filteredData) === 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No filter was entered in the search.'
+            ]);    
+        }
+
+        if($request->has('cnpj') && !is_null($request->get('cnpj'))) {
+            if(strlen($request->cnpj) == 8) {
+                $cnpj = $request->cnpj;
+                $estabelecimentos->where('estabelecimentos.cnpj_basico', $cnpj);    
+            }
         }
         
-        if($request->has('situacao')) {
-            $situacao = $request->situacao;
+        if($request->has('situacao') && !is_null($request->get('situacao'))) {
+            $situacao = (string) $request->situacao;
             $estabelecimentos->where('situacao_cadastral', $situacao);
         }
         
-        if($request->has('cnae_principal')) {
+        if($request->has('cnae_principal') && !is_null($request->get('cnae_principal'))) {
             $cnaep = $request->cnae_principal;
             $estabelecimentos->where("cnae_principal", "LIKE", "%$cnaep%");
         }
         
-        if($request->has('cnae_secundaria')) {
+        if($request->has('cnae_secundaria') && !is_null($request->get('cnae_secundaria'))) {
             $cnaes = $request->cnae_secundaria;
             $estabelecimentos->where("cnae_secundaria", "LIKE", "%$cnaes%");
         }
         
-        if($request->has('fantasia')) {
+        if($request->has('fantasia') && !is_null($request->get('fantasia'))) {
             $fantasia = $request->fantasia;
             $estabelecimentos->where("nome_fantasia", "LIKE", "%$fantasia%");
         }
         
-        if($request->has('uf') && $request->has('municipio')) {
-            $uf = $request->uf;
-            $municipio = $request->municipio;
-            $estabelecimentos->where("uf", $uf);
-            $estabelecimentos->where("municipio", $municipio);
+        if($request->has('uf') && !is_null($request->get('uf'))) {
+            if($request->has('municipio') && !is_null($request->get('municipio'))) {
+                $uf = $request->uf;
+                $municipio = $request->municipio;
+                $estabelecimentos->where("uf", $uf);
+                $estabelecimentos->where("municipio", $municipio);
+            }
         }
         
-        if($request->has('cep')) {
+        if($request->has('cep') && !is_null($request->get('cep'))) {
             $cep = (string) $request->cep;
             $estabelecimentos->where("cep", "LIKE", "$cep%");
         }
@@ -61,51 +74,6 @@ class EstabelecimentoController extends Controller
         return response()->json([
             'status' => 'success',
             'count' => $estabelecimentos->count(),
-            'data' => $estabelecimentos,
-            'message' => 'Estabelecimentos retrieved successfully'
-        ]);
-    }
-
-    /**
-     * Display a listing of estabelecimentos.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function indexModelo(Request $request): JsonResponse
-    {
-        $query = Estabelecimento::query();
-
-        // Apply filters
-        if ($request->has('uf')) {
-            $query->byUf($request->uf);
-        }
-
-        if ($request->has('matriz_filial')) {
-            if ($request->matriz_filial == 'matriz') {
-                $query->matriz();
-            } elseif ($request->matriz_filial == 'filial') {
-                $query->filial();
-            }
-        }
-
-        if ($request->has('ativo')) {
-            $query->ativo();
-        }
-
-        if ($request->has('search')) {
-            $query->searchByName($request->search);
-        }
-
-        // Pagination
-        // $perPage = $request->get('per_page', 100);
-        // $estabelecimentos = $query->paginate($perPage);
-
-        // 
-        $estabelecimentos = $query->limit(10)->get();
-
-        return response()->json([
-            'status' => 'success',
             'data' => $estabelecimentos,
             'message' => 'Estabelecimentos retrieved successfully'
         ]);
