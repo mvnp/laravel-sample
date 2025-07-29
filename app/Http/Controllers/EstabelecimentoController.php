@@ -16,8 +16,7 @@ class EstabelecimentoController extends Controller
             ->where('nome_fantasia', '<>', '')
             ->with(['empresa', 'socio'])
             ->whereHas('empresa')
-            ->whereHas('socio')
-            ->limit(51);
+            ->whereHas('socio');
 
         $filteredData = array_filter($request->all());
 
@@ -85,6 +84,13 @@ class EstabelecimentoController extends Controller
                     ]);
                 });
             }
+        }
+
+        if($request->has('limit') && !is_null($request->get('limit'))) {
+            $limit = (int) $request->limit;
+            $estabelecimentos->limit($limit);
+        } else {
+            $estabelecimentos->limit(50);
         }
             
         $estabelecimentos = $estabelecimentos->get();
