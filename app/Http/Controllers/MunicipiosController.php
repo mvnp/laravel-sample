@@ -14,16 +14,6 @@ class MunicipiosController extends Controller
     public function index(Request $request): JsonResponse
     {
         $municipios = Municipio::query();
-        $filteredData = array_filter($request->all());
-        
-        if(count($filteredData) === 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No filter was entered in the search.'
-            ]);    
-        }
-        
-        $municipios = EstabelecimentoSearchService::search($municipios, $request);
         $municipios = $municipios->get();
 
         return response()->json([

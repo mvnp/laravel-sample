@@ -14,15 +14,6 @@ class EstadosController extends Controller
     public function index(Request $request): JsonResponse
     {
         $estados = Estado::query();
-        $filteredData = array_filter($request->all());
-        
-        if(count($filteredData) === 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No filter was entered in the search.'
-            ]);    
-        }
-        
         $estados = EstabelecimentoSearchService::search($estados, $request);
         $estados = $estados->get();
 

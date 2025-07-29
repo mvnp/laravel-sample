@@ -13,17 +13,7 @@ class MotivosController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $motivos = Municipio::query();
-        $filteredData = array_filter($request->all());
-        
-        if(count($filteredData) === 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No filter was entered in the search.'
-            ]);    
-        }
-        
-        $motivos = EstabelecimentoSearchService::search($motivos, $request);
+        $motivos = Motivo::query();
         $motivos = $motivos->get();
 
         return response()->json([

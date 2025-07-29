@@ -14,16 +14,6 @@ class CnaesController extends Controller
     public function index(Request $request): JsonResponse
     {
         $cnae = Cnae::query();
-        $filteredData = array_filter($request->all());
-        
-        if(count($filteredData) === 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No filter was entered in the search.'
-            ]);    
-        }
-        
-        $cnae = EstabelecimentoSearchService::search($cnae, $request);
         $cnae = $cnae->get();
 
         return response()->json([

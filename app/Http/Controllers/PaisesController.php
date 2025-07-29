@@ -14,16 +14,6 @@ class PaisesController extends Controller
     public function index(Request $request): JsonResponse
     {
         $paises = Pais::query();
-        $filteredData = array_filter($request->all());
-        
-        if(count($filteredData) === 0) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No filter was entered in the search.'
-            ]);    
-        }
-        
-        $paises = EstabelecimentoSearchService::search($paises, $request);
         $paises = $paises->get();
 
         return response()->json([
