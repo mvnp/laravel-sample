@@ -9,7 +9,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Services\EstabelecimentoSearchService;
 
-class EstabelecimentoController extends Controller
+class EstabelecimentosController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
