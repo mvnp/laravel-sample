@@ -10,6 +10,7 @@ use App\Http\Controllers\EstadosController;
 use App\Http\Controllers\QualificacoesController;
 use App\Http\Controllers\NaturezasController;
 use App\Http\Controllers\MotivosController;
+use App\Http\Controllers\PaisesController;
 use App\Http\Controllers\CnaesController;
 
 /*
@@ -35,4 +36,5 @@ Route::apiResource('estados', EstadosController::class);
 Route::apiResource('qualificacoes', QualificacoesController::class);
 Route::apiResource('naturezas', NaturezasController::class);
 Route::apiResource('motivos', MotivosController::class);
+Route::apiResource('paises', PaisesController::class);
 Route::apiResource('cnaes', CnaesController::class);
