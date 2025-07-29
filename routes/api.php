@@ -22,4 +22,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Method 1: Full resource routes (recommended)
+Route::apiResource('socios', EstabelecimentoController::class);
+Route::apiResource('empresas', EstabelecimentoController::class);
+Route::apiResource('municipios', EstabelecimentoController::class);
+Route::apiResource('estados', EstabelecimentoController::class);
+Route::apiResource('qualificacoes', EstabelecimentoController::class);
+Route::apiResource('naturezas', EstabelecimentoController::class);
+Route::apiResource('estabelecimentos', EstabelecimentoController::class);
+Route::apiResource('estabelecimentos', EstabelecimentoController::class);
+Route::apiResource('estabelecimentos', EstabelecimentoController::class);
+Route::apiResource('estabelecimentos', EstabelecimentoController::class);
 Route::apiResource('estabelecimentos', EstabelecimentoController::class);
