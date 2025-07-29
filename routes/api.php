@@ -3,8 +3,14 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\SociosController;
 use App\Http\Controllers\EmpresasController;
-use App\Http\Controllers\EstabelecimentoController;
+use App\Http\Controllers\MunicipiosController;
+use App\Http\Controllers\EstadosController;
+use App\Http\Controllers\QualificacoesController;
+use App\Http\Controllers\NaturezasController;
+use App\Http\Controllers\MotivosController;
+use App\Http\Controllers\CnaesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,14 +28,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Method 1: Full resource routes (recommended)
-Route::apiResource('socios', EstabelecimentoController::class);
-Route::apiResource('empresas', EstabelecimentoController::class);
-Route::apiResource('municipios', EstabelecimentoController::class);
-Route::apiResource('estados', EstabelecimentoController::class);
-Route::apiResource('qualificacoes', EstabelecimentoController::class);
-Route::apiResource('naturezas', EstabelecimentoController::class);
-Route::apiResource('estabelecimentos', EstabelecimentoController::class);
-Route::apiResource('estabelecimentos', EstabelecimentoController::class);
-Route::apiResource('estabelecimentos', EstabelecimentoController::class);
-Route::apiResource('estabelecimentos', EstabelecimentoController::class);
-Route::apiResource('estabelecimentos', EstabelecimentoController::class);
+Route::apiResource('socios', SociosController::class);
+Route::apiResource('empresas', EmpresasController::class);
+Route::apiResource('municipios', MunicipiosController::class);
+Route::apiResource('estados', EstadosController::class);
+Route::apiResource('qualificacoes', QualificacoesController::class);
+Route::apiResource('naturezas', NaturezasController::class);
+Route::apiResource('motivos', MotivosController::class);
+Route::apiResource('cnaes', CnaesController::class);
