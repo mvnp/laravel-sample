@@ -78,7 +78,7 @@
                                 <!-- CNPJ -->
                                 <div class="col-md-4">
                                     <label for="cnpj" class="form-label">CNPJ Básico (8 dígitos)</label>
-                                    <input type="text" class="form-control" id="cnpj" name="cnpj" placeholder="12345678" maxlength="8">
+                                    <input type="text" class="form-control select2" id="cnpj" name="cnpj" placeholder="12345678" maxlength="8">
                                 </div>
 
                                 <!-- CNAE Secundária -->
@@ -105,7 +105,7 @@
                                 <!-- Estado -->
                                 <div class="col-md-4">
                                     <label for="uf" class="form-label">Estado</label>
-                                    <select class="form-select" id="uf" name="uf">
+                                    <select class="form-select select2" id="uf" name="uf">
                                         <option value="">Selecione...</option>
                                         @foreach($estados as $estado)
                                             <option value="{{ $estado->sigla }}">
@@ -118,7 +118,7 @@
                                 <!-- Município -->
                                 <div class="col-md-4">
                                     <label for="municipio" class="form-label">Município</label>
-                                    <select class="form-select" id="municipio" name="municipio" disabled>
+                                    <select class="form-select select2" id="municipio" name="municipio" disabled>
                                         <option value="">Selecione um estado primeiro...</option>
                                     </select>
                                 </div>
@@ -131,7 +131,7 @@
                                     <select class="form-select" id="situacao" name="situacao">
                                         <option value="">Todas</option>
                                         <option value="01">Nula</option>
-                                        <option value="02">Ativa</option>
+                                        <option value="02" selected>Ativa</option>
                                         <option value="03">Suspensa</option>
                                         <option value="04">Inapta</option>
                                         <option value="08">Baixada</option>
@@ -160,6 +160,8 @@
                                         <option value="100">100</option>
                                         <option value="200">200</option>
                                         <option value="500">500</option>
+                                        <option value="1000">1000</option>
+                                        <option value="5000">5000</option>
                                     </select>
                                 </div>
 
@@ -205,14 +207,15 @@
                                     <table class="table table-striped table-hover mb-0">
                                         <thead class="table-dark">
                                             <tr>
-                                                <th>CNPJ</th>
-                                                <th>Razão Social</th>
-                                                <th>Nome Fantasia</th>
-                                                <th>Situação</th>
-                                                <th>CNAE Principal</th>
-                                                <th>UF</th>
-                                                <th>Município</th>
-                                                <th>Capital Social</th>
+                                                <th class="text-nowrap">CNPJ</th>
+                                                <th class="text-nowrap">Telefone</th>
+                                                <th class="text-nowrap">Razão Social</th>
+                                                <th class="text-nowrap">Nome Fantasia</th>
+                                                <th class="text-nowrap">Situação</th>
+                                                <th class="text-nowrap">CNAE Principal</th>
+                                                <th class="text-nowrap">UF</th>
+                                                <th class="text-nowrap">Município</th>
+                                                <th class="text-nowrap">Capital Social</th>
                                             </tr>
                                         </thead>
                                         <tbody id="resultsTableBody">
@@ -333,7 +336,8 @@
             });
 
             // AJAX Search Function
-            function performSearch() {
+            function performSearch()
+            {
                 const formData = $('#searchForm').serialize();
                 
                 // Show loading
@@ -434,6 +438,7 @@
                 $.each(results, function(index, estabelecimento) {
                     const cnpj = estabelecimento.cnpj_completo || (estabelecimento.cnpj_basico + (estabelecimento.cnpj_ordem || '') + (estabelecimento.cnpj_dv || ''));
                     
+                    const telefone = (("(" + estabelecimento.ddd_1 + ") " + setPhone(estabelecimento.telefone_1)) || '');
                     const razaoSocial = (estabelecimento.empresa && estabelecimento.empresa.razao_social) || 'N/A';
                     const nomeFantasia = estabelecimento.nome_fantasia || '-';
                     
@@ -441,6 +446,7 @@
                     const situacaoBadge = `<span class="badge bg-${situacaoInfo[1]}">${situacaoInfo[0]}</span>`;
                     
                     const cnaePrincipal = estabelecimento.cnae_principal || '-';
+
                     const uf = estabelecimento.uf || '-';
                     const municipio = estabelecimento.municipio || '-';
                     
@@ -455,14 +461,15 @@
                     
                     const row = `
                         <tr>
-                            <td><code>${cnpj}</code></td>
-                            <td>${razaoSocial}</td>
-                            <td>${nomeFantasia}</td>
-                            <td>${situacaoBadge}</td>
-                            <td>${cnaePrincipal}</td>
-                            <td>${uf}</td>
-                            <td>${municipio}</td>
-                            <td>${capitalSocial}</td>
+                            <td class="text-nowrap"><code>${cnpj}</code></td>
+                            <td class="text-nowrap">${telefone}</td>
+                            <td class="text-nowrap">${razaoSocial}</td>
+                            <td class="text-nowrap">${nomeFantasia}</td>
+                            <td class="text-nowrap">${situacaoBadge}</td>
+                            <td class="text-nowrap">${cnaePrincipal}</td>
+                            <td class="text-nowrap">${uf}</td>
+                            <td class="text-nowrap">${municipio}</td>
+                            <td class="text-nowrap">${capitalSocial}</td>
                         </tr>
                     `;
                     
@@ -474,9 +481,7 @@
             function clearForm() {
                 $('#searchForm')[0].reset();
                 $('.select2').val(null).trigger('change');
-                $('#municipio').empty()
-                    .append('<option value="">Selecione um estado primeiro...</option>')
-                    .prop('disabled', true);
+                $('#municipio').empty().append('<option value="">Selecione um estado primeiro...</option>').prop('disabled', true);
                 $('#capital_entre').val('');
                 $('#capital_inicial').val('');
                 $('#capital_final').val('');
@@ -493,6 +498,23 @@
                     </div>
                 `;
                 $('#alertContainer').html(alertHtml);
+            }
+
+            function setPhone(phone) {
+                // Convert to string and remove any non-digit characters
+                const cleanPhone = String(phone).replace(/\D/g, '');
+                
+                // Check the length and format accordingly
+                if (cleanPhone.length === 8) {
+                    // 8 digits: format as XXXX-XXXX
+                    return cleanPhone.substring(0, 4) + '-' + cleanPhone.substring(4);
+                } else if (cleanPhone.length === 9) {
+                    // 9 digits: format as XXXXX-XXXX
+                    return cleanPhone.substring(0, 5) + '-' + cleanPhone.substring(5);
+                } else {
+                    // Return original value if not 8 or 9 digits
+                    return phone;
+                }
             }
 
             // Clear Alerts
