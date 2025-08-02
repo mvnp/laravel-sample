@@ -171,6 +171,9 @@
                                         <button type="submit" class="btn btn-primary" id="searchBtn">
                                             <i class="bi bi-search"></i> <span id="searchBtnText">Pesquisar</span>
                                         </button>
+                                        <button type="button" class="btn btn-success" id="exportBtn" disabled>
+                                            <i class="bi bi-file-earmark-spreadsheet"></i> <span id="exportBtnText">Exportar CSV</span>
+                                        </button>
                                         <button type="button" class="btn btn-secondary" id="clearForm">
                                             <i class="bi bi-arrow-clockwise"></i> Limpar
                                         </button>
@@ -209,6 +212,7 @@
                                             <tr>
                                                 <th class="text-nowrap">CNPJ</th>
                                                 <th class="text-nowrap">Telefone</th>
+                                                <th class="text-nowrap">E-mail</th>
                                                 <th class="text-nowrap">Razão Social</th>
                                                 <th class="text-nowrap">Nome Fantasia</th>
                                                 <th class="text-nowrap">Situação</th>
@@ -249,6 +253,8 @@
 
     <script>
         $(document).ready(function() {
+            let hasValidResults = false;
+
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap-5',
@@ -272,7 +278,6 @@
                         success: function(data) {
                             municipioSelect.empty().append('<option value="">Selecione...</option>');
                             
-                            // Handle both array and object responses
                             const municipios = data.data || data;
                             
                             $.each(municipios, function(i, municipio) {
@@ -316,6 +321,16 @@
                 performSearch();
             });
 
+            // Handle export button click
+            $('#exportBtn').click(function() {
+                if (!hasValidResults) {
+                    showAlert('Realize uma pesquisa antes de exportar.', 'warning');
+                    return;
+                }
+                
+                exportToCSV();
+            });
+
             // Clear form
             $('#clearForm').click(function() {
                 clearForm();
@@ -336,8 +351,7 @@
             });
 
             // AJAX Search Function
-            function performSearch()
-            {
+            function performSearch() {
                 const formData = $('#searchForm').serialize();
                 
                 // Show loading
@@ -357,15 +371,18 @@
                     success: function(response) {
                         console.log('Search response:', response);
                         
-                        // Handle different response formats
                         const results = response.data || response;
-                        const total = response.total || (Array.isArray(results) ? results.length : 0);
+                        const total = response.count || (Array.isArray(results) ? results.length : 0);
                         
                         if (total > 0) {
                             populateResults(results, total);
                             showResults();
+                            hasValidResults = true;
+                            $('#exportBtn').prop('disabled', false);
                         } else {
                             showNoResults();
+                            hasValidResults = false;
+                            $('#exportBtn').prop('disabled', true);
                         }
                     },
                     error: function(xhr, status, error) {
@@ -383,14 +400,43 @@
                         
                         showAlert(errorMessage, 'danger');
                         showNoResults();
+                        hasValidResults = false;
+                        $('#exportBtn').prop('disabled', true);
                     },
                     complete: function() {
-                        // Hide loading and restore button
                         showLoading(false);
                         $('#searchBtn').prop('disabled', false);
                         $('#searchBtnText').text('Pesquisar');
                     }
                 });
+            }
+
+            // Export to CSV Function
+            function exportToCSV() {
+                // Update export button state
+                $('#exportBtn').prop('disabled', true);
+                $('#exportBtnText').text('Exportando...');
+                
+                // Get current form data
+                const formData = $('#searchForm').serialize();
+                
+                // Create download URL with form data
+                const exportUrl = '{{ route("estabelecimentos.export") }}?' + formData;
+                
+                // Create temporary link to trigger download
+                const link = document.createElement('a');
+                link.href = exportUrl;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // Show success message and restore button
+                setTimeout(function() {
+                    $('#exportBtn').prop('disabled', false);
+                    $('#exportBtnText').text('Exportar CSV');
+                    showAlert('Download iniciado! O arquivo CSV será salvo em sua pasta de downloads.', 'success');
+                }, 1000);
             }
 
             // Show/Hide Loading
@@ -436,17 +482,20 @@
                 };
                 
                 $.each(results, function(index, estabelecimento) {
-                    const cnpj = estabelecimento.cnpj_completo || (estabelecimento.cnpj_basico + (estabelecimento.cnpj_ordem || '') + (estabelecimento.cnpj_dv || ''));
+                    const cnpj = estabelecimento.cnpj_completo || 
+                                (estabelecimento.cnpj_basico + 
+                                (estabelecimento.cnpj_ordem || '').padStart(4, '0') + 
+                                (estabelecimento.cnpj_dv || '').padStart(2, '0'));
                     
-                    const telefone = (("(" + estabelecimento.ddd_1 + ") " + setPhone(estabelecimento.telefone_1)) || '');
+                    const telefone = formatPhone(estabelecimento.ddd_1, estabelecimento.telefone_1);
                     const razaoSocial = (estabelecimento.empresa && estabelecimento.empresa.razao_social) || 'N/A';
                     const nomeFantasia = estabelecimento.nome_fantasia || '-';
+                    const emailEstabelecimento = estabelecimento.email || '-';
                     
                     const situacaoInfo = situacoes[estabelecimento.situacao_cadastral] || ['Desconhecida', 'light'];
                     const situacaoBadge = `<span class="badge bg-${situacaoInfo[1]}">${situacaoInfo[0]}</span>`;
                     
                     const cnaePrincipal = estabelecimento.cnae_principal || '-';
-
                     const uf = estabelecimento.uf || '-';
                     const municipio = estabelecimento.municipio || '-';
                     
@@ -461,8 +510,9 @@
                     
                     const row = `
                         <tr>
-                            <td class="text-nowrap"><code>${cnpj}</code></td>
+                            <td class="text-nowrap"><code>${formatCNPJ(cnpj)}</code></td>
                             <td class="text-nowrap">${telefone}</td>
+                            <td class="text-nowrap">${emailEstabelecimento}</td>
                             <td class="text-nowrap">${razaoSocial}</td>
                             <td class="text-nowrap">${nomeFantasia}</td>
                             <td class="text-nowrap">${situacaoBadge}</td>
@@ -477,6 +527,32 @@
                 });
             }
 
+            // Format CNPJ for display
+            function formatCNPJ(cnpj) {
+                if (!cnpj || cnpj.length !== 14) return cnpj;
+                
+                return cnpj.substring(0, 2) + '.' + 
+                       cnpj.substring(2, 5) + '.' + 
+                       cnpj.substring(5, 8) + '/' + 
+                       cnpj.substring(8, 12) + '-' + 
+                       cnpj.substring(12, 14);
+            }
+
+            // Format Phone for display
+            function formatPhone(ddd, telefone) {
+                if (!ddd || !telefone) return '';
+                
+                const cleanPhone = String(telefone).replace(/\D/g, '');
+                
+                if (cleanPhone.length === 8) {
+                    return `(${ddd}) ${cleanPhone.substring(0, 4)}-${cleanPhone.substring(4)}`;
+                } else if (cleanPhone.length === 9) {
+                    return `(${ddd}) ${cleanPhone.substring(0, 5)}-${cleanPhone.substring(5)}`;
+                } else {
+                    return `(${ddd}) ${cleanPhone}`;
+                }
+            }
+
             // Clear Form
             function clearForm() {
                 $('#searchForm')[0].reset();
@@ -487,6 +563,8 @@
                 $('#capital_final').val('');
                 hideResults();
                 clearAlerts();
+                hasValidResults = false;
+                $('#exportBtn').prop('disabled', true);
             }
 
             // Show Alert
@@ -498,23 +576,6 @@
                     </div>
                 `;
                 $('#alertContainer').html(alertHtml);
-            }
-
-            function setPhone(phone) {
-                // Convert to string and remove any non-digit characters
-                const cleanPhone = String(phone).replace(/\D/g, '');
-                
-                // Check the length and format accordingly
-                if (cleanPhone.length === 8) {
-                    // 8 digits: format as XXXX-XXXX
-                    return cleanPhone.substring(0, 4) + '-' + cleanPhone.substring(4);
-                } else if (cleanPhone.length === 9) {
-                    // 9 digits: format as XXXXX-XXXX
-                    return cleanPhone.substring(0, 5) + '-' + cleanPhone.substring(5);
-                } else {
-                    // Return original value if not 8 or 9 digits
-                    return phone;
-                }
             }
 
             // Clear Alerts

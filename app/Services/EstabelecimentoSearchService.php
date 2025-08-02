@@ -86,7 +86,7 @@ class EstabelecimentoSearchService
     protected function applyFantasiaFilter(Request $request): self
     {
         if ($request->filled('fantasia')) {
-            $this->query->where('nome_fantasia', 'LIKE', "%{$request->fantasia}%");
+            $this->query->where('nome_fantasia', 'LIKE', "{$request->fantasia}%");
         }
 
         return $this;

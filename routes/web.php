@@ -37,7 +37,7 @@ Route::resource('empresas', EmpresasController::class);
 Route::resource('municipios', MunicipiosController::class);
 Route::resource('estados', EstadosController::class);
 Route::resource('qualificacoes', QualificacoesController::class);
-Route::resource('estabelecimentos', EstabelecimentosController::class);
+Route::resource('estabelecimentos', EstabelecimentosController::class)->only(['index']);
 Route::resource('naturezas', NaturezasController::class);
 Route::resource('motivos', MotivosController::class);
 Route::resource('paises', PaisesController::class);
