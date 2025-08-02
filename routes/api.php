@@ -35,7 +35,7 @@ Route::apiResource('empresas', EmpresasController::class);
 Route::apiResource('municipios', MunicipiosController::class);
 Route::apiResource('estados', EstadosController::class);
 Route::apiResource('qualificacoes', QualificacoesController::class);
-Route::apiResource('estabelecimentos', EstabelecimentosController::class);
+Route::apiResource('estabelecimentos', EstabelecimentosController::class)->only(['index', 'export']);
 Route::apiResource('naturezas', NaturezasController::class);
 Route::apiResource('motivos', MotivosController::class);
 Route::apiResource('paises', PaisesController::class);
