@@ -40,6 +40,3 @@ Route::apiResource('naturezas', NaturezasController::class);
 Route::apiResource('motivos', MotivosController::class);
 Route::apiResource('paises', PaisesController::class);
 Route::apiResource('cnaes', CnaesController::class);
-
-// Excel Export File
-Route::get('/estabelecimentos/export', [EstabelecimentosController::class, 'export'])->name('estabelecimentos.export');

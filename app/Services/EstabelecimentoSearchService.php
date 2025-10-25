@@ -62,7 +62,8 @@ class EstabelecimentoSearchService
     protected function applyCnaePrincipalFilter(Request $request): self
     {
         if ($request->filled('cnae_principal')) {
-            $this->query->where('cnae_principal', (string) $request->cnae_principal);
+            $cnae = str_pad($request->cnae_principal, 7, '0', STR_PAD_LEFT);
+            $this->query->where('cnae_principal', $cnae);
         }
 
         return $this;

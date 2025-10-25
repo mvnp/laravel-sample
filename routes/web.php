@@ -12,6 +12,15 @@ use App\Http\Controllers\MotivosController;
 use App\Http\Controllers\PaisesController;
 use App\Http\Controllers\CnaesController;
 
+use App\Http\Controllers\PortalGloboPontoComController;
+use App\Http\Controllers\PortalUolNoticiasController;
+use App\Http\Controllers\PortalMetropolesController;
+use App\Http\Controllers\PortalCnnBrasilController;
+use App\Http\Controllers\PortalTerraController;
+use App\Http\Controllers\EstadaoScraperController;
+use App\Http\Controllers\PortalGloboController;
+use App\Http\Controllers\PortalR7Controller;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,3 +51,15 @@ Route::resource('naturezas', NaturezasController::class);
 Route::resource('motivos', MotivosController::class);
 Route::resource('paises', PaisesController::class);
 Route::resource('cnaes', CnaesController::class);
+
+Route::get('cnnbrasil', [PortalCnnBrasilController::class, 'index']);
+Route::get('metropoles', [PortalMetropolesController::class, 'index']);
+Route::get('g1com', [PortalGloboPontoComController::class, 'index']);
+Route::get('uolnoticias', [PortalUolNoticiasController::class, 'index']);
+Route::get('portalterra', [PortalTerraController::class, 'index']);
+Route::get('portalr7', [PortalR7Controller::class, 'index']);
+Route::get('estadao', [EstadaoScraperController::class, 'index']);
+Route::get('globocom', [PortalGloboController::class, 'index']);
+
+// Rota para gerar e fazer download do arquivo
+Route::get('/estabelecimentos/export', [EstabelecimentosController::class, 'export'])->name('estabelecimentos.export');

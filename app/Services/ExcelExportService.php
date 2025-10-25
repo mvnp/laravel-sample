@@ -10,7 +10,7 @@ class ExcelExportService
     /**
      * Exportar dados para CSV
      */
-    public static function exportToCsv(Collection $data, string $filename, array $headers, callable $rowMapper): Response
+    public static function exportToCsv(Collection $data, string $filename, array $headers, callable $rowMapper)
     {
         $filename = $filename . '_' . date('Y-m-d_H-i-s') . '.csv';
         

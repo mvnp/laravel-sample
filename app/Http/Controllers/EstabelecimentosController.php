@@ -40,7 +40,7 @@ class EstabelecimentosController extends Controller
         ]);
     }
 
-    public function export(Request $request): Response
+    public function export(Request $request)
     {
         $filteredData = array_filter($request->all());
         
